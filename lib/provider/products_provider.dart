@@ -3,6 +3,8 @@ import '../models/http_exception.dart';
 import './product.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
+
 
 class ProductsProvider with ChangeNotifier {
   List<Product> _items = [
@@ -85,6 +87,7 @@ class ProductsProvider with ChangeNotifier {
     final filterString= filterByUser ?'orderBy="creatorId"&equalTo="$userId"':'';
     var url = 'https://shopapp-2253d.firebaseio.com/products.json?auth=$authToken&$filterString';
     try{
+      // 1. get all data but without the favorites products
       final response=await http.get(url);
 
       print(response.body);
@@ -92,10 +95,13 @@ class ProductsProvider with ChangeNotifier {
       if(extractData==null){
         return;
       }
+      // 2. get the favorite product for a specific user
        url = 'https://shopapp-2253d.firebaseio.com/userFavorites/$userId.json?auth=$authToken';
       final favoriteResponse=await http.get(url);
+
       final favoriteData=json.decode(favoriteResponse.body);
 
+      // 3. get all data include the favorite
       final List<Product> loadedData=[];
      extractData.forEach((prodId, prodValue) {
        loadedData.add(Product(
@@ -113,7 +119,6 @@ class ProductsProvider with ChangeNotifier {
     catch(error){
       throw error;
     }
-//    print(_items);
   }
 
   Future<void> addProduct(Product product) async {

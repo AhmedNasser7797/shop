@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import '../provider/products_provider.dart';
 import 'package:provider/provider.dart';
@@ -17,18 +19,26 @@ class ProductDetailScreen extends StatelessWidget {
     final loadedProduct = Provider.of<ProductsProvider>(context, listen: false)
         .findById(productId);
     return Scaffold(
-      appBar: AppBar(title: Text(loadedProduct.title)),
-      body: SingleChildScrollView(
-        child: Column(
-          children: <Widget>[
-            Container(
-              width: double.infinity,
-              height: 300,
+//      appBar: AppBar(title: Text(loadedProduct.title)),
+      body: CustomScrollView(
+        slivers: <Widget>[
+          SliverAppBar(
+            pinned: true,
+            flexibleSpace: FlexibleSpaceBar(
+              title:Text(loadedProduct.title),
+              background: Hero(
+              tag: loadedProduct.id,
               child: Image.network(
                 loadedProduct.imageUrl,
                 fit: BoxFit.cover,
               ),
             ),
+            ),
+            expandedHeight: 300,
+            
+          ),
+          SliverList(
+            delegate: SliverChildListDelegate([
             SizedBox(
               height: 10,
             ),
@@ -48,9 +58,12 @@ class ProductDetailScreen extends StatelessWidget {
                 softWrap: true,
               ),
             ),
-          ],
+            SizedBox(height: 500,)
+          ]),)
+        ],
+
         ),
-      ),
+
     );
   }
 }
